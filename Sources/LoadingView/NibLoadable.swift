@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  NibLoadable.swift
 //  
 //
 //  Created by Владимир Королев on 21.03.2020.
@@ -7,23 +7,24 @@
 
 import UIKit
 
-public protocol NibLoadable {
+protocol NibLoadable {
     static var nibName: String { get }
 }
 
-public extension NibLoadable where Self: UIView {
-
+extension NibLoadable where Self: UIView {
     static var nibName: String {
-        return String(describing: Self.self) // defaults to the name of the class implementing this protocol.
+        String(describing: Self.self)
     }
 
-    static var nib: UINib {
-        let bundle = Bundle(for: Self.self)
-        return UINib(nibName: Self.nibName, bundle: bundle)
+    static private var nib: UINib {
+        UINib(nibName: Self.nibName, bundle: Bundle(for: Self.self))
     }
 
     func setupFromNib() {
-        guard let view = Self.nib.instantiate(withOwner: self, options: nil).first as? UIView else { fatalError("Error loading \(self) from nib") }
+        guard let view = Self.nib.instantiate(withOwner: self, options: nil).first as? Self
+            else {
+                fatalError("Error loading \(self) from nib")
+        }
         addSubview(view)
         view.translatesAutoresizingMaskIntoConstraints = false
         view.heightAnchor.constraint(equalTo: heightAnchor).isActive = true

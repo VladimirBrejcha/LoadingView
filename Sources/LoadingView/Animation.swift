@@ -7,7 +7,7 @@
 
 import UIKit
 
-protocol Animation {
+public protocol Animation {
     func add(on view: UIView)
     func animate(_ animate: Bool)
 }

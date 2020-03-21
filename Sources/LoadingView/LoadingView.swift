@@ -9,78 +9,106 @@
 import UIKit
 
 enum LoadingViewState: Equatable {
-    case content
+    case hidden
     case loading
+    case content (contentView: UIView)
     case info (message: String)
     case error (message: String)
 }
 
 @IBDesignable
-final class LoadingView: UIButton, NibLoadable {
+open class LoadingView: UIView, NibLoadable {
     @IBOutlet private weak var infoLabel: UILabel!
     @IBOutlet private weak var errorContainerView: UIView!
-    @IBOutlet private weak var repeatButton: Button!
     @IBOutlet private weak var errorLabel: UILabel!
     @IBOutlet private weak var animationView: UIView!
-    @IBOutlet weak var contentView: UIView!
-    @IBOutlet var containerView: DesignableContainerView!
     
-    private lazy var animator: UIViewPropertyAnimator = {
-        return UIViewPropertyAnimator(duration: 0.3, curve: .easeInOut)
+    // MARK: - Background view
+    private let defaultCornerRadius: CGFloat = 12
+    @IBInspectable var cornerRadius: CGFloat {
+        get { layer.cornerRadius }
+        set { layer.cornerRadius = newValue }
+    }
+    
+    private let defaultBackgroundColor: UIColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 0.03)
+    @IBInspectable var color: UIColor? {
+        get { backgroundColor }
+        set { backgroundColor = newValue }
+    }
+    
+    // MARK: - Repeat button
+    @IBOutlet private weak var repeatButton: Button!
+    
+    @IBInspectable var buttonCornerRadius: CGFloat {
+        get { repeatButton.layer.cornerRadius }
+        set { repeatButton.layer.cornerRadius = newValue }
+    }
+    
+    @IBInspectable var buttonColor: UIColor? {
+        get { repeatButton.backgroundColor }
+        set { repeatButton.backgroundColor = newValue }
+    }
+    
+    var repeatTouchUpHandler: ((UIButton) -> Void)?
+    
+    // MARK: - Loading animation
+    private let defaultLoadingAnimation: Animation = PulsingCircleAnimation()
+    var loadingAnimation: Animation! {
+        didSet {
+            loadingAnimation.add(on: animationView)
+        }
+    }
+    
+    // MARK: - State
+    var animateStateChanges: Bool = true
+    var state: LoadingViewState = .hidden {
+        didSet {
+            crossDisolve(from: chooseView(for: oldValue),
+                         to: prepareView(for: state),
+                         animated: animateStateChanges)
+        }
+    }
+    
+    private let animator: UIViewPropertyAnimator = {
+        UIViewPropertyAnimator(duration: 0.1, curve: .easeInOut)
     }()
     
-    private var loadingAnimation: Animation?
-    private var viewState: LoadingViewState = .content
-    
-    var repeatButtonHandler: (() -> Void)?
-    
-    override init(frame: CGRect) {
+    // MARK: - Init -
+    override public init(frame: CGRect) {
         super.init(frame: frame)
+        
         setupFromNib()
+        sharedInit()
     }
     
-    required init?(coder aDecoder: NSCoder) {
+    required public init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
+        
         setupFromNib()
+        sharedInit()
+    }
+    
+    private func sharedInit() {
+        layer.cornerRadius = defaultCornerRadius
+        backgroundColor = defaultBackgroundColor
+        loadingAnimation = defaultLoadingAnimation
+    }
+    
+    public override func draw(_ rect: CGRect) {
+        super.draw(rect)
     }
 
-    @IBAction func errorButtonPressed(_ sender: Button) {
-        repeatButtonHandler?()
+    @IBAction private func repeatTouchUp(_ sender: Button) {
+        repeatTouchUpHandler?(sender)
     }
-    
-    func changeState(to state: LoadingViewState) {
-        if viewState == state {
-//            log(.info, with: "changeState cancelled, because view is in the same state already")
-            return
-        }
-        
-        crossDisolve(from: chooseView(for: viewState), to: prepareView(for: state))
-        self.viewState = state
-    }
-    
     
     // MARK: - Private -
-    private func prepareView(for state: LoadingViewState) -> UIView {
-        switch state {
-        case .content:
-            return contentView
-        case .error(let error):
-            errorLabel.text = error
-            return errorContainerView
-        case .info(let info):
-            infoLabel.text = info
-            return infoLabel
-        case .loading:
-//            loadingAnimation = PulsingCircleAnimation(with: animationView.layer)
-            loadingAnimation?.animate(true)
-            return animationView
-        }
-    }
-    
     private func chooseView(for state: LoadingViewState) -> UIView {
         switch state {
-        case .content:
-            return contentView //todo crash because of nil
+        case .hidden:
+            return self
+        case .content (let contentView):
+            return contentView
         case .error:
             return errorContainerView
         case .info:
@@ -90,10 +118,34 @@ final class LoadingView: UIButton, NibLoadable {
         }
     }
     
-    private func crossDisolve(from oldView: UIView, to newView: UIView) {
+    private func prepareView(for state: LoadingViewState) -> UIView {
+        switch state {
+        case .hidden:
+            return self
+        case .content (let contentView):
+            return contentView
+        case .error(let error):
+            errorLabel.text = error
+            return errorContainerView
+        case .info(let info):
+            infoLabel.text = info
+            return infoLabel
+        case .loading:
+            loadingAnimation.animate(true)
+            return animationView
+        }
+    }
+    
+    private func crossDisolve(from oldView: UIView, to newView: UIView, animated: Bool) {
         if animator.state != .inactive {
             animator.stopAnimation(false)
             animator.finishAnimation(at: .end)
+        }
+        
+        if !animated {
+            oldView.alpha = 0
+            newView.alpha = 1
+            return
         }
         
         animator.addAnimations {

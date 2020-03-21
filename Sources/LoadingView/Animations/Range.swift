@@ -13,5 +13,5 @@ struct Range<T> {
 }
 
 extension Range {
-    var inverted: Self { Range(from: self.to, to: self.from) }
+    var inverted: Self { Range(from: to, to: from) }
 }
