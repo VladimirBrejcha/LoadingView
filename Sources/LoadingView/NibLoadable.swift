@@ -17,7 +17,7 @@ extension NibLoadable where Self: UIView {
     }
 
     static private var nib: UINib {
-        UINib(nibName: Self.nibName, bundle: Bundle(for: Self.self))
+        UINib(nibName: Self.nibName, bundle: nil)
     }
 
     func setupFromNib() {
