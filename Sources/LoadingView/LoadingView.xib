@@ -44,7 +44,7 @@
                                     </constraints>
                                     <state key="normal" title="try again"/>
                                     <connections>
-                                        <action selector="errorButtonPressed:" destination="-1" eventType="touchUpInside" id="E2M-Rz-FbN"/>
+                                        <action selector="repeatTouchUp:" destination="-1" eventType="touchDragInside" id="qA4-7V-e70"/>
                                     </connections>
                                 </button>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="751" text="Loading failed" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="UJ2-jI-rIQ">
