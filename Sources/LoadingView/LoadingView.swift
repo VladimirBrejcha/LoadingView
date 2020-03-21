@@ -8,7 +8,7 @@
 
 import UIKit
 
-enum LoadingViewState: Equatable {
+public enum LoadingViewState: Equatable {
     case hidden
     case loading
     case content (contentView: UIView)
@@ -25,13 +25,13 @@ open class LoadingView: UIView, NibLoadable {
     
     // MARK: - Background view
     private let defaultCornerRadius: CGFloat = 12
-    @IBInspectable var cornerRadius: CGFloat {
+    @IBInspectable public var cornerRadius: CGFloat {
         get { layer.cornerRadius }
         set { layer.cornerRadius = newValue }
     }
     
     private let defaultBackgroundColor: UIColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 0.03)
-    @IBInspectable var color: UIColor? {
+    @IBInspectable public var color: UIColor? {
         get { backgroundColor }
         set { backgroundColor = newValue }
     }
@@ -39,29 +39,29 @@ open class LoadingView: UIView, NibLoadable {
     // MARK: - Repeat button
     @IBOutlet private weak var repeatButton: Button!
     
-    @IBInspectable var buttonCornerRadius: CGFloat {
+    @IBInspectable public var buttonCornerRadius: CGFloat {
         get { repeatButton.layer.cornerRadius }
         set { repeatButton.layer.cornerRadius = newValue }
     }
     
-    @IBInspectable var buttonColor: UIColor? {
+    @IBInspectable public var buttonColor: UIColor? {
         get { repeatButton.backgroundColor }
         set { repeatButton.backgroundColor = newValue }
     }
     
-    var repeatTouchUpHandler: ((UIButton) -> Void)?
+    public var repeatTouchUpHandler: ((UIButton) -> Void)?
     
     // MARK: - Loading animation
     private let defaultLoadingAnimation: Animation = PulsingCircleAnimation()
-    var loadingAnimation: Animation! {
+    public var loadingAnimation: Animation? {
         didSet {
-            loadingAnimation.add(on: animationView)
+            loadingAnimation?.add(on: animationView)
         }
     }
     
     // MARK: - State
-    var animateStateChanges: Bool = true
-    var state: LoadingViewState = .hidden {
+    public var animateStateChanges: Bool = true
+    public var state: LoadingViewState = .hidden {
         didSet {
             crossDisolve(from: chooseView(for: oldValue),
                          to: prepareView(for: state),
@@ -131,7 +131,7 @@ open class LoadingView: UIView, NibLoadable {
             infoLabel.text = info
             return infoLabel
         case .loading:
-            loadingAnimation.animate(true)
+            loadingAnimation?.animate(true)
             return animationView
         }
     }
