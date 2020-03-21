@@ -22,7 +22,7 @@ final class PulsingCircleAnimation: Animation {
             repeatCount: .infinity,
             removedOnCompletion: false
         )
-        let defaultGroupSettings = GroupSettings(
+        let defaultGroupSettings = AnimationGroupSettings(
             duration: 1,
             repeatCount: .infinity
         )
@@ -82,7 +82,7 @@ final class PulsingCircleAnimation: Animation {
         return animation
     }
     
-    private func makeAnimationGroup(from animations: [CAAnimation], with settings: GroupSettings) -> CAAnimationGroup {
+    private func makeAnimationGroup(from animations: [CAAnimation], with settings: AnimationGroupSettings) -> CAAnimationGroup {
         let group = CAAnimationGroup()
         group.duration = settings.duration
         group.repeatCount = settings.repeatCount

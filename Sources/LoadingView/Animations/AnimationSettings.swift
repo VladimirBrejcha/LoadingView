@@ -1,11 +1,11 @@
 //
-//  File.swift
+//  AnimationSettings.swift
 //  
 //
 //  Created by Владимир Королев on 21.03.2020.
 //
 
-import Foundation
+import UIKit
 
 struct AnimationSettings {
     let range: Range<CGFloat>
