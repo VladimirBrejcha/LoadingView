@@ -17,12 +17,37 @@ public enum LoadingViewState: Equatable {
 }
 
 @IBDesignable
-open class LoadingView: UIView, NibLoadable {
-    @IBOutlet private weak var infoLabel: UILabel!
-    @IBOutlet private weak var errorContainerView: UIView!
-    @IBOutlet private weak var errorLabel: UILabel!
-    @IBOutlet private weak var animationView: UIView!
+open class LoadingView: UIView {
+    private let infoLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.systemFont(ofSize: 15)
+        label.textColor = .white
+        label.textAlignment = .center
+        label.numberOfLines = 0
+        return label
+    }()
     
+    private let errorLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.systemFont(ofSize: 15)
+        label.textColor = .white
+        label.textAlignment = .center
+        label.numberOfLines = 0
+        return label
+    }()
+    
+    private let animationView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .clear
+        return view
+    }()
+    
+    private let errorContainerView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .clear
+        return view
+    }()
+        
     // MARK: - Background view
     private let defaultCornerRadius: CGFloat = 12
     @IBInspectable public var cornerRadius: CGFloat {
@@ -37,7 +62,18 @@ open class LoadingView: UIView, NibLoadable {
     }
     
     // MARK: - Repeat button
-    @IBOutlet private weak var repeatButton: Button!
+    private let repeatButton: Button = {
+        let button = Button()
+        button.addTarget(self, action: #selector(repeatTouchUp(_:)), for: .touchUpInside)
+        button.titleEdgeInsets = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
+        return button
+    }()
+    
+    private let defaultButtonTitle: String = "repeat"
+    @IBInspectable public var buttonTitle: String? {
+        get { repeatButton.titleLabel?.text }
+        set { repeatButton.setTitle(newValue, for: .normal) }
+    }
     
     @IBInspectable public var buttonCornerRadius: CGFloat {
         get { repeatButton.layer.cornerRadius }
@@ -76,19 +112,54 @@ open class LoadingView: UIView, NibLoadable {
     // MARK: - Init -
     override public init(frame: CGRect) {
         super.init(frame: frame)
-        
-        setupFromNib()
         sharedInit()
     }
     
     required public init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-        
-        setupFromNib()
         sharedInit()
     }
     
     private func sharedInit() {
+        addSubview(infoLabel)
+        addSubview(animationView)
+        addSubview(errorContainerView)
+        errorContainerView.addSubview(repeatButton)
+        errorContainerView.addSubview(errorLabel)
+        
+        infoLabel.translatesAutoresizingMaskIntoConstraints = false
+        infoLabel.centerYAnchor.constraint(equalTo: self.centerYAnchor).isActive = true
+        infoLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 10).isActive = true
+        infoLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -10).isActive = true
+
+        animationView.translatesAutoresizingMaskIntoConstraints = false
+        animationView.leadingAnchor.constraint(equalTo: self.leadingAnchor).isActive = true
+        animationView.trailingAnchor.constraint(equalTo: self.trailingAnchor).isActive = true
+        animationView.topAnchor.constraint(equalTo: self.topAnchor).isActive = true
+        animationView.bottomAnchor.constraint(equalTo: self.bottomAnchor).isActive = true
+
+        errorContainerView.translatesAutoresizingMaskIntoConstraints = false
+        errorContainerView.heightAnchor.constraint(greaterThanOrEqualToConstant: 40).isActive = true
+        errorContainerView.widthAnchor.constraint(greaterThanOrEqualToConstant: 40).isActive = true
+        errorContainerView.leadingAnchor.constraint(equalTo: self.leadingAnchor).isActive = true
+        errorContainerView.trailingAnchor.constraint(equalTo: self.trailingAnchor).isActive = true
+        errorContainerView.centerXAnchor.constraint(equalTo: self.centerXAnchor).isActive = true
+        errorContainerView.centerYAnchor.constraint(equalTo: self.centerYAnchor).isActive = true
+
+        repeatButton.translatesAutoresizingMaskIntoConstraints = false
+        repeatButton.heightAnchor.constraint(lessThanOrEqualToConstant: 30).isActive = true
+        repeatButton.widthAnchor.constraint(equalToConstant: 90).isActive = true
+        repeatButton.topAnchor.constraint(equalTo: errorLabel.bottomAnchor, constant: 10).isActive = true
+        repeatButton.centerXAnchor.constraint(equalTo: errorContainerView.centerXAnchor).isActive = true
+        repeatButton.bottomAnchor.constraint(equalTo: errorContainerView.bottomAnchor).isActive = true
+
+        errorLabel.translatesAutoresizingMaskIntoConstraints = false
+        errorLabel.centerXAnchor.constraint(equalTo: errorContainerView.centerXAnchor).isActive = true
+        errorLabel.topAnchor.constraint(equalTo: errorContainerView.topAnchor).isActive = true
+        errorLabel.leadingAnchor.constraint(equalTo: errorContainerView.leadingAnchor).isActive = true
+        errorLabel.trailingAnchor.constraint(equalTo: errorContainerView.trailingAnchor).isActive = true
+        
+        repeatButton.setTitle(defaultButtonTitle, for: .normal)
         layer.cornerRadius = defaultCornerRadius
         backgroundColor = defaultBackgroundColor
         loadingAnimation = defaultLoadingAnimation
@@ -98,7 +169,8 @@ open class LoadingView: UIView, NibLoadable {
         super.draw(rect)
     }
 
-    @IBAction private func repeatTouchUp(_ sender: Button) {
+    
+    @objc private func repeatTouchUp(_ sender: Button) {
         repeatTouchUpHandler?(sender)
     }
     
