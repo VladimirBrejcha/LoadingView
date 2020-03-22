@@ -23,6 +23,7 @@ open class LoadingView: UIView {
         label.textColor = .white
         label.textAlignment = .center
         label.numberOfLines = 0
+        label.alpha = 0
         return label
     }()
     
@@ -38,12 +39,14 @@ open class LoadingView: UIView {
     private let animationView: UIView = {
         let view = UIView()
         view.backgroundColor = .clear
+        view.alpha = 0
         return view
     }()
     
     private let errorContainerView: UIView = {
         let view = UIView()
         view.backgroundColor = .clear
+        view.alpha = 0
         return view
     }()
         
