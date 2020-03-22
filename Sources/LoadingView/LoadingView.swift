@@ -11,7 +11,6 @@ import UIKit
 public enum LoadingViewState: Equatable {
     case hidden
     case loading
-    case content (contentView: UIView)
     case info (message: String)
     case error (message: String)
 }
@@ -99,6 +98,11 @@ open class LoadingView: UIView {
     public var animateStateChanges: Bool = true
     public var state: LoadingViewState = .hidden {
         didSet {
+            log("state change from \(oldValue) to \(state)")
+            if oldValue == .hidden {
+                
+            }
+            
             crossDisolve(from: chooseView(for: oldValue),
                          to: prepareView(for: state),
                          animated: animateStateChanges)
@@ -180,8 +184,6 @@ open class LoadingView: UIView {
         switch state {
         case .hidden:
             return self
-        case .content (let contentView):
-            return contentView
         case .error:
             return errorContainerView
         case .info:
@@ -195,8 +197,6 @@ open class LoadingView: UIView {
         switch state {
         case .hidden:
             return self
-        case .content (let contentView):
-            return contentView
         case .error(let error):
             errorLabel.text = error
             return errorContainerView
