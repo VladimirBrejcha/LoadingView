@@ -96,6 +96,7 @@ open class LoadingView: UIView {
     
     // MARK: - State
     public var animateStateChanges: Bool = true
+    private let initialState: LoadingViewState = .hidden
     public var state: LoadingViewState = .hidden {
         didSet {
             if oldValue == state { return }
@@ -166,7 +167,7 @@ open class LoadingView: UIView {
         layer.cornerRadius = defaultCornerRadius
         backgroundColor = defaultBackgroundColor
         loadingAnimation = defaultLoadingAnimation
-        self.alpha = 0
+        state = initialState
     }
     
     public override func draw(_ rect: CGRect) {
