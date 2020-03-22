@@ -179,12 +179,19 @@ open class LoadingView: UIView {
         }
         
         state = initialState
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(applicationWillResignActive),
+                                               name: UIApplication.willResignActiveNotification, object: nil)
     }
     
-    public override func willMove(toWindow newWindow: UIWindow?) {
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: UIApplication.willResignActiveNotification, object: nil)
+    }
+    
+    @objc private func applicationWillResignActive() {
         afterBackgroundAnimationSetup = { [weak self] in
             guard let self = self else { return }
-            log("readded animation on a view after background \(self.animationView.subviews) \(self.animationView.layer.sublayers)")
+            log("readded animation on a view after background \(self.animationView.subviews.count) \(self.animationView.layer.sublayers?.count)")
             self.loadingAnimation?.add(on: self.animationView)
         }
     }
