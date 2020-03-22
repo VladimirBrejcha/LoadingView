@@ -98,6 +98,7 @@ open class LoadingView: UIView {
     public var animateStateChanges: Bool = true
     public var state: LoadingViewState = .hidden {
         didSet {
+            if oldValue == state { return }
             log("state change from \(oldValue) to \(state)")
             if oldValue == .hidden {
                 
