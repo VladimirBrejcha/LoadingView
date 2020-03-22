@@ -169,12 +169,13 @@ open class LoadingView: UIView {
         repeatButton.setTitle(defaultButtonTitle, for: .normal)
         layer.cornerRadius = defaultCornerRadius
         backgroundColor = defaultBackgroundColor
-        loadingAnimation = defaultLoadingAnimation
         state = initialState
     }
     
     public override func draw(_ rect: CGRect) {
         super.draw(rect)
+        
+        loadingAnimation = defaultLoadingAnimation
     }
 
     
