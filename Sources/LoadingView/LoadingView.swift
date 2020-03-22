@@ -90,10 +90,7 @@ open class LoadingView: UIView {
     public var repeatTouchUpHandler: ((UIButton) -> Void)?
     
     // MARK: - Loading animation
-    private var initialAnimationSetup: (() -> Void)? = {
-        loadingAnimation = PulsingCircleAnimation()
-    }
-    
+    private var initialAnimationSetup: (() -> Void)?
     public var loadingAnimation: Animation? {
         didSet {
             loadingAnimation?.add(on: animationView)
@@ -172,6 +169,11 @@ open class LoadingView: UIView {
         repeatButton.setTitle(defaultButtonTitle, for: .normal)
         layer.cornerRadius = defaultCornerRadius
         backgroundColor = defaultBackgroundColor
+        initialAnimationSetup = {
+            if self.loadingAnimation == nil {
+                self.loadingAnimation = PulsingCircleAnimation()
+            }
+        }
         state = initialState
     }
     
