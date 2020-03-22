@@ -113,7 +113,7 @@ open class LoadingView: UIView {
     }
     
     private let animator: UIViewPropertyAnimator = {
-        UIViewPropertyAnimator(duration: 0.1, curve: .easeInOut)
+        UIViewPropertyAnimator(duration: 0.3, curve: .easeInOut)
     }()
     
     // MARK: - Init -
