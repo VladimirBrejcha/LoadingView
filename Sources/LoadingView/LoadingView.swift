@@ -181,11 +181,11 @@ open class LoadingView: UIView {
         state = initialState
         
         NotificationCenter.default.addObserver(self, selector: #selector(applicationWillResignActive),
-                                               name: UIApplication.willResignActiveNotification, object: nil)
+                                               name: UIApplication.didEnterBackgroundNotification, object: nil)
     }
     
     deinit {
-        NotificationCenter.default.removeObserver(self, name: UIApplication.willResignActiveNotification, object: nil)
+        NotificationCenter.default.removeObserver(self, name: UIApplication.didEnterBackgroundNotification, object: nil)
     }
     
     @objc private func applicationWillResignActive() {
