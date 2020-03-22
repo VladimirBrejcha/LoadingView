@@ -163,6 +163,7 @@ open class LoadingView: UIView {
         layer.cornerRadius = defaultCornerRadius
         backgroundColor = defaultBackgroundColor
         loadingAnimation = defaultLoadingAnimation
+        self.alpha = 0
     }
     
     public override func draw(_ rect: CGRect) {
