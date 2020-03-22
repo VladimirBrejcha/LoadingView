@@ -99,10 +99,8 @@ open class LoadingView: UIView {
     public var state: LoadingViewState = .hidden {
         didSet {
             if oldValue == state { return }
-            log("state change from \(oldValue) to \(state)")
-            if oldValue == .hidden {
-                
-            }
+            
+            log("state changed from \(oldValue) to \(state)")
             
             crossDisolve(from: chooseView(for: oldValue),
                          to: prepareView(for: state),
@@ -181,10 +179,10 @@ open class LoadingView: UIView {
     }
     
     // MARK: - Private -
-    private func chooseView(for state: LoadingViewState) -> UIView {
+    private func chooseView(for state: LoadingViewState) -> UIView? {
         switch state {
         case .hidden:
-            return self
+            return nil
         case .error:
             return errorContainerView
         case .info:
@@ -194,10 +192,10 @@ open class LoadingView: UIView {
         }
     }
     
-    private func prepareView(for state: LoadingViewState) -> UIView {
+    private func prepareView(for state: LoadingViewState) -> UIView? {
         switch state {
         case .hidden:
-            return self
+            return nil
         case .error(let error):
             errorLabel.text = error
             return errorContainerView
@@ -210,21 +208,21 @@ open class LoadingView: UIView {
         }
     }
     
-    private func crossDisolve(from oldView: UIView, to newView: UIView, animated: Bool) {
+    private func crossDisolve(from oldView: UIView?, to newView: UIView?, animated: Bool) {
         if animator.state != .inactive {
             animator.stopAnimation(false)
             animator.finishAnimation(at: .end)
         }
         
         if !animated {
-            oldView.alpha = 0
-            newView.alpha = 1
+            oldView?.alpha = 0
+            newView?.alpha = 1
             return
         }
         
         animator.addAnimations {
-            oldView.alpha = 0
-            newView.alpha = 1
+            oldView?.alpha = 0
+            newView?.alpha = 1
         }
         
         animator.startAnimation()
