@@ -9,6 +9,7 @@ import UIKit
 
 final class PulsingCircleAnimation: Animation {
     private weak var animationLayer: CALayer?
+    private var animationLayers: [CALayer] = []
     private var animationKey: String {
         String(describing: Self.self)
     }
@@ -29,8 +30,14 @@ final class PulsingCircleAnimation: Animation {
                                   width: defaultAnimationSize.width,
                                   height: defaultAnimationSize.height)
             layer.addSublayer(circle)
+            animationLayers.append(circle)
         }
         animate(false)
+    }
+    
+    func removeFromSuperlayer() {
+        animationLayers.forEach { $0.removeFromSuperlayer() }
+        animationLayers.removeAll()
     }
 
     func animate(_ animate: Bool) {

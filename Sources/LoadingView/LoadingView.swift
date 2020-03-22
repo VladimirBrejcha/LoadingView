@@ -191,8 +191,9 @@ open class LoadingView: UIView {
     @objc private func applicationWillResignActive() {
         afterBackgroundAnimationSetup = { [weak self] in
             guard let self = self else { return }
-            log("readded animation on a view after background \(self.animationView.subviews.count) \(self.animationView.layer.sublayers?.count)")
+            self.loadingAnimation?.removeFromSuperlayer()
             self.loadingAnimation?.add(on: self.animationView)
+            log("readded animation on a view after background \(self.animationView.subviews.count) \(self.animationView.layer.sublayers?.count)")
         }
     }
     
@@ -224,7 +225,6 @@ open class LoadingView: UIView {
         case .info:
             return infoLabel
         case .loading:
-            loadingAnimation?.animate(false)
             return animationView
         }
     }
@@ -240,7 +240,6 @@ open class LoadingView: UIView {
             infoLabel.text = info
             return infoLabel
         case .loading:
-            loadingAnimation?.animate(true)
             return animationView
         }
     }
