@@ -94,7 +94,7 @@ open class LoadingView: UIView {
     private var afterBackgroundAnimationSetup: (() -> Void)?
     public var loadingAnimation: Animation? {
         didSet {
-            loadingAnimation?.add(on: animationView)
+            loadingAnimation?.add(on: animationView.layer)
         }
     }
     
@@ -192,8 +192,8 @@ open class LoadingView: UIView {
         afterBackgroundAnimationSetup = { [weak self] in
             guard let self = self else { return }
             self.loadingAnimation?.removeFromSuperlayer()
-            self.loadingAnimation?.add(on: self.animationView)
-            log("readded animation on a view after background \(self.animationView.subviews.count) \(self.animationView.layer.sublayers?.count)")
+            self.loadingAnimation?.add(on: self.animationView.layer)
+            log("readded animation on a view after background \(self.animationView.layer.sublayers?.count)")
         }
     }
     

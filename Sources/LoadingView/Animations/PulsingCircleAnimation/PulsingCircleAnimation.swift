@@ -8,7 +8,6 @@
 import UIKit
 
 final class PulsingCircleAnimation: Animation {
-    private weak var animationLayer: CALayer?
     private var animationLayers: [CALayer] = []
     private var animationKey: String {
         String(describing: Self.self)
@@ -17,8 +16,7 @@ final class PulsingCircleAnimation: Animation {
     private let defaultFill = UIColor.white.cgColor
     
     // MARK: - Animation -
-    func add(on view: UIView) {
-        let layer = view.layer
+    func add(on layer: CALayer) {
         let beginTimes = [0, 0.5, 1]
         let animationGroup = self.animationGroup
         for i in 0...2 {
@@ -32,18 +30,11 @@ final class PulsingCircleAnimation: Animation {
             layer.addSublayer(circle)
             animationLayers.append(circle)
         }
-        animate(false)
     }
     
     func removeFromSuperlayer() {
         animationLayers.forEach { $0.removeFromSuperlayer() }
         animationLayers.removeAll()
-    }
-
-    func animate(_ animate: Bool) {
-        guard let layer = animationLayer else { return }
-        layer.isHidden = !animate
-        layer.speed = animate ? 1 : 0
     }
     
     // MARK: - Private -
