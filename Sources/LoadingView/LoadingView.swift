@@ -182,7 +182,6 @@ open class LoadingView: UIView {
     }
     
     public override func willMove(toWindow newWindow: UIWindow?) {
-        super.willMove(toWindow: window)
         afterBackgroundAnimationSetup = { [weak self] in
             guard let self = self else { return }
             log("readded animation on a view after background \(self.animationView.subviews) \(self.animationView.layer.sublayers)")
