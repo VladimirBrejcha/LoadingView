@@ -30,10 +30,13 @@ final class PulsingCircleAnimation: Animation {
                                   height: defaultAnimationSize.height)
             layer.addSublayer(circle)
         }
+        animate(false)
     }
 
     func animate(_ animate: Bool) {
-
+        guard let layer = animationLayer else { return }
+        layer.isHidden = !animate
+        layer.speed = animate ? 1 : 0
     }
     
     // MARK: - Private -
