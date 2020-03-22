@@ -91,6 +91,7 @@ open class LoadingView: UIView {
     
     // MARK: - Loading animation
     private var initialAnimationSetup: (() -> Void)?
+    private var afterBackgroundAnimationSetup: (() -> Void)?
     public var loadingAnimation: Animation? {
         didSet {
             loadingAnimation?.add(on: animationView)
@@ -175,6 +176,19 @@ open class LoadingView: UIView {
             }
         }
         state = initialState
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(applicationWillResignActive),
+                                               name: UIApplication.willResignActiveNotification, object: nil)
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: UIApplication.willResignActiveNotification, object: nil)
+    }
+    
+    @objc private func applicationWillResignActive() {
+        afterBackgroundAnimationSetup = {
+            self.loadingAnimation?.add(on: animationView)
+        }
     }
     
     public override func draw(_ rect: CGRect) {
@@ -182,6 +196,9 @@ open class LoadingView: UIView {
         
         initialAnimationSetup?()
         initialAnimationSetup = nil
+        
+        afterBackgroundAnimationSetup?()
+        afterBackgroundAnimationSetup = nil
     }
 
     
