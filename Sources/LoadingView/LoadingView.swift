@@ -170,26 +170,22 @@ open class LoadingView: UIView {
         repeatButton.setTitle(defaultButtonTitle, for: .normal)
         layer.cornerRadius = defaultCornerRadius
         backgroundColor = defaultBackgroundColor
+        
         initialAnimationSetup = { [weak self] in
             guard let self = self else { return }
             if self.loadingAnimation == nil {
                 self.loadingAnimation = PulsingCircleAnimation()
             }
         }
+        
         state = initialState
     }
     
-    open override func willMove(toWindow newWindow: UIWindow?) {
+    public override func willMove(toWindow newWindow: UIWindow?) {
         super.willMove(toWindow: window)
-//        afterBackgroundAnimationSetup = { [weak self] in
-//            guard let self = self else { return }
-//            self.loadingAnimation?.add(on: self.animationView)
-//        }
-    }
-    
-    @objc private func applicationWillResignActive() {
         afterBackgroundAnimationSetup = { [weak self] in
             guard let self = self else { return }
+            log("readded animation on a view after background \(self.animationView.subviews) \(self.animationView.layer.sublayers)")
             self.loadingAnimation?.add(on: self.animationView)
         }
     }
@@ -197,8 +193,11 @@ open class LoadingView: UIView {
     public override func draw(_ rect: CGRect) {
         super.draw(rect)
         
-        initialAnimationSetup?()
-        initialAnimationSetup = nil
+        if initialAnimationSetup != nil {
+            initialAnimationSetup?()
+            initialAnimationSetup = nil
+            return
+        }
         
         afterBackgroundAnimationSetup?()
         afterBackgroundAnimationSetup = nil
