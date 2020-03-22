@@ -177,13 +177,14 @@ open class LoadingView: UIView {
             }
         }
         state = initialState
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(applicationWillResignActive),
-                                               name: UIApplication.willEnterForegroundNotification, object: nil)
     }
     
-    deinit {
-        NotificationCenter.default.removeObserver(self, name: UIApplication.willEnterForegroundNotification, object: nil)
+    open override func willMove(toWindow newWindow: UIWindow?) {
+        super.willMove(toWindow: window)
+//        afterBackgroundAnimationSetup = { [weak self] in
+//            guard let self = self else { return }
+//            self.loadingAnimation?.add(on: self.animationView)
+//        }
     }
     
     @objc private func applicationWillResignActive() {
