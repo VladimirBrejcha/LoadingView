@@ -90,7 +90,10 @@ open class LoadingView: UIView {
     public var repeatTouchUpHandler: ((UIButton) -> Void)?
     
     // MARK: - Loading animation
-    private let defaultLoadingAnimation: Animation = PulsingCircleAnimation()
+    private var initialAnimationSetup: (() -> Void)? = {
+        loadingAnimation = PulsingCircleAnimation()
+    }
+    
     public var loadingAnimation: Animation? {
         didSet {
             loadingAnimation?.add(on: animationView)
@@ -175,7 +178,8 @@ open class LoadingView: UIView {
     public override func draw(_ rect: CGRect) {
         super.draw(rect)
         
-        loadingAnimation = defaultLoadingAnimation
+        initialAnimationSetup?()
+        initialAnimationSetup = nil
     }
 
     
@@ -193,6 +197,7 @@ open class LoadingView: UIView {
         case .info:
             return infoLabel
         case .loading:
+            loadingAnimation?.animate(false)
             return animationView
         }
     }
