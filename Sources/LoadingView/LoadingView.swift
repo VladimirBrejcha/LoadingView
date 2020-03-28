@@ -163,6 +163,7 @@ open class LoadingView: UIView {
     }
     
     private func sharedInit() {
+        clipsToBounds = true
         layer.cornerRadius = 12
         backgroundColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 0.03)
         alpha = 0
