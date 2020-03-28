@@ -92,6 +92,7 @@ open class LoadingView: UIView {
     // MARK: - Loading animation
     private var initialAnimationSetup: (() -> Void)?
     private var afterBackgroundAnimationSetup: (() -> Void)?
+    
     public var loadingAnimation: Animation? {
         didSet {
             loadingAnimation?.add(on: animationView.layer)
@@ -170,6 +171,8 @@ open class LoadingView: UIView {
         repeatButton.setTitle(defaultButtonTitle, for: .normal)
         layer.cornerRadius = defaultCornerRadius
         backgroundColor = defaultBackgroundColor
+        alpha = 0
+        state = initialState
         
         initialAnimationSetup = { [weak self] in
             guard let self = self else { return }
@@ -177,8 +180,6 @@ open class LoadingView: UIView {
                 self.loadingAnimation = PulsingCircleAnimation()
             }
         }
-        
-        state = initialState
         
         NotificationCenter.default.addObserver(self, selector: #selector(applicationWillResignActive),
                                                name: UIApplication.willEnterForegroundNotification, object: nil)
@@ -193,7 +194,6 @@ open class LoadingView: UIView {
             guard let self = self else { return }
             self.loadingAnimation?.removeFromSuperlayer()
             self.loadingAnimation?.add(on: self.animationView.layer)
-            log("readded animation on a view after background \(self.animationView.layer.sublayers?.count)")
         }
     }
     
