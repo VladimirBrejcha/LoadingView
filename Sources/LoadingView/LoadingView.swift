@@ -1,9 +1,7 @@
-//
 //  LoadingView.swift
-//  Rise
 //
-//  Created by Владимир Королев on 10.10.2019.
-//  Copyright © 2019 VladimirBrejcha. All rights reserved.
+//  Created by Владимир Королев on 21.03.2020.
+//  Copyright © 2020 VladimirBrejcha. All rights reserved.
 //
 
 import UIKit
@@ -17,40 +15,7 @@ public enum LoadingViewState: Equatable {
 
 @IBDesignable
 open class LoadingView: UIView {
-    private let infoLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 15)
-        label.textColor = .white
-        label.textAlignment = .center
-        label.numberOfLines = 0
-        label.alpha = 0
-        return label
-    }()
-    
-    private let errorLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 15)
-        label.textColor = .white
-        label.textAlignment = .center
-        label.numberOfLines = 0
-        return label
-    }()
-    
-    private let animationView: UIView = {
-        let view = UIView()
-        view.backgroundColor = .clear
-        view.alpha = 0
-        return view
-    }()
-    
-    private let errorContainerView: UIView = {
-        let view = UIView()
-        view.backgroundColor = .clear
-        view.alpha = 0
-        return view
-    }()
-        
-    // MARK: - Background view
+    // MARK: - Background view -
     private let defaultCornerRadius: CGFloat = 12
     @IBInspectable public var cornerRadius: CGFloat {
         get { layer.cornerRadius }
@@ -62,6 +27,69 @@ open class LoadingView: UIView {
         get { backgroundColor }
         set { backgroundColor = newValue }
     }
+    
+    // MARK: - States -
+    public var animateStateChanges: Bool = true
+    public var state: LoadingViewState = .hidden {
+        didSet {
+            if oldValue == state { return }
+            
+            log("state changed from \(String(describing: oldValue)) to \(String(describing: state))")
+            
+            let animation = makeAnimation(from: oldValue, to: state)
+            animateStateChanges
+                ? execute(animation: animation)
+                : animation()
+        }
+    }
+    private let animator = UIViewPropertyAnimator(duration: 0.3, curve: .easeInOut)
+    
+    // MARK: - State: Loading -
+    private let animationView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .clear
+        view.alpha = 0
+        return view
+    }()
+    
+    private var initialAnimationSetup: (() -> Void)?
+    private var afterBackgroundAnimationSetup: (() -> Void)?
+    
+    public var loadingAnimation: Animation? {
+        didSet {
+            loadingAnimation?.add(on: animationView.layer)
+        }
+    }
+    
+    // MARK: - State: Info -
+    private let infoLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.systemFont(ofSize: 15)
+        label.textColor = .white
+        label.textAlignment = .center
+        label.numberOfLines = 0
+        label.alpha = 0
+        return label
+    }()
+    
+    // MARK: - State: Error -
+    private let errorContainerView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .clear
+        view.alpha = 0
+        return view
+    }()
+    
+    // MARK: - Error label
+    private let errorLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.systemFont(ofSize: 15)
+        label.textColor = .white
+        label.text = "An error occurred"
+        label.textAlignment = .center
+        label.numberOfLines = 0
+        return label
+    }()
     
     // MARK: - Repeat button
     private let repeatButton: Button = {
@@ -77,6 +105,11 @@ open class LoadingView: UIView {
         set { repeatButton.setTitle(newValue, for: .normal) }
     }
     
+    @IBInspectable public var buttonTitleColor: UIColor? {
+        get { repeatButton.titleColor(for: .normal) }
+        set { repeatButton.setTitleColor(newValue, for: .normal) }
+    }
+    
     @IBInspectable public var buttonCornerRadius: CGFloat {
         get { repeatButton.layer.cornerRadius }
         set { repeatButton.layer.cornerRadius = newValue }
@@ -89,36 +122,7 @@ open class LoadingView: UIView {
     
     public var repeatTouchUpHandler: ((UIButton) -> Void)?
     
-    // MARK: - Loading animation
-    private var initialAnimationSetup: (() -> Void)?
-    private var afterBackgroundAnimationSetup: (() -> Void)?
-    
-    public var loadingAnimation: Animation? {
-        didSet {
-            loadingAnimation?.add(on: animationView.layer)
-        }
-    }
-    
-    // MARK: - State
-    public var animateStateChanges: Bool = true
-    public var state: LoadingViewState = .hidden {
-        didSet {
-            if oldValue == state { return }
-            
-            log("state changed from \(String(describing: oldValue)) to \(String(describing: state))")
-            
-            let animation = makeAnimation(from: oldValue, to: state)
-            animateStateChanges
-                ? execute(animation: animation)
-                : animation()
-        }
-    }
-    
-    private let animator: UIViewPropertyAnimator = {
-        UIViewPropertyAnimator(duration: 0.3, curve: .easeInOut)
-    }()
-    
-    // MARK: - Init -
+    // MARK: - LifeCycle -
     override public init(frame: CGRect) {
         super.init(frame: frame)
         sharedInit()
