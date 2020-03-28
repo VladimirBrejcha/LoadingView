@@ -101,8 +101,7 @@ open class LoadingView: UIView {
     
     // MARK: - State
     public var animateStateChanges: Bool = true
-    private let initialState: LoadingViewState = .hidden
-    public var state: LoadingViewState! {
+    public var state: LoadingViewState = .hidden {
         didSet {
             if oldValue == state { return }
             
@@ -172,7 +171,7 @@ open class LoadingView: UIView {
         repeatButton.setTitle(defaultButtonTitle, for: .normal)
         layer.cornerRadius = defaultCornerRadius
         backgroundColor = defaultBackgroundColor
-        state = initialState
+        alpha = 0
         
         initialAnimationSetup = { [weak self] in
             guard let self = self else { return }
