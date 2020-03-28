@@ -108,9 +108,10 @@ open class LoadingView: UIView {
             
             log("state changed from \(oldValue) to \(state)")
             
-            crossDisolve(from: chooseView(for: oldValue),
-                         to: prepareView(for: state),
-                         animated: animateStateChanges)
+            let animation = makeAnimation(from: oldValue, to: state)
+            animateStateChanges
+                ? execute(animation: animation)
+                : animation()
         }
     }
     
@@ -171,7 +172,6 @@ open class LoadingView: UIView {
         repeatButton.setTitle(defaultButtonTitle, for: .normal)
         layer.cornerRadius = defaultCornerRadius
         backgroundColor = defaultBackgroundColor
-        alpha = 0
         state = initialState
         
         initialAnimationSetup = { [weak self] in
@@ -181,7 +181,7 @@ open class LoadingView: UIView {
             }
         }
         
-        NotificationCenter.default.addObserver(self, selector: #selector(applicationWillResignActive),
+        NotificationCenter.default.addObserver(self, selector: #selector(willEnterForeground),
                                                name: UIApplication.willEnterForegroundNotification, object: nil)
     }
     
@@ -189,7 +189,7 @@ open class LoadingView: UIView {
         NotificationCenter.default.removeObserver(self, name: UIApplication.willEnterForegroundNotification, object: nil)
     }
     
-    @objc private func applicationWillResignActive() {
+    @objc private func willEnterForeground() {
         afterBackgroundAnimationSetup = { [weak self] in
             guard let self = self else { return }
             self.loadingAnimation?.removeFromSuperlayer()
@@ -216,52 +216,60 @@ open class LoadingView: UIView {
     }
     
     // MARK: - Private -
-    private func chooseView(for state: LoadingViewState) -> UIView? {
+    private typealias AnimatorAnimation = () -> Void
+    private typealias ViewAnimation = (UIView, UIView) -> AnimatorAnimation
+    
+    private func makeView(for state: LoadingViewState) -> UIView {
         switch state {
         case .hidden:
-            return nil
-        case .error:
-            return errorContainerView
-        case .info:
-            return infoLabel
+            return self
         case .loading:
             return animationView
+        case .info(let message):
+            infoLabel.text = message
+            return infoLabel
+        case .error(let message):
+            errorLabel.text = message
+            return errorContainerView
         }
     }
     
-    private func prepareView(for state: LoadingViewState) -> UIView? {
-        switch state {
-        case .hidden:
-            return nil
-        case .error(let error):
-            errorLabel.text = error
-            return errorContainerView
-        case .info(let info):
-            infoLabel.text = info
-            return infoLabel
-        case .loading:
-            return animationView
+    private func makeAnimation(from oldState: LoadingViewState, to newState: LoadingViewState) -> AnimatorAnimation {
+        let oldView = makeView(for: oldState)
+        let newView = makeView(for: newState)
+        
+        if oldState == .hidden {
+            return showBoth(oldView, newView)
+        } else if newState == .hidden {
+            return hideBoth(oldView, newView)
+        } else {
+            return crossDissolve(oldView, newView)
         }
     }
     
-    private func crossDisolve(from oldView: UIView?, to newView: UIView?, animated: Bool) {
+    private func execute(animation: @escaping AnimatorAnimation) {
         if animator.state != .inactive {
             animator.stopAnimation(false)
             animator.finishAnimation(at: .end)
         }
-        
-        if !animated {
-            oldView?.alpha = 0
-            newView?.alpha = 1
-            return
-        }
-        
-        animator.addAnimations {
-            oldView?.alpha = 0
-            newView?.alpha = 1
-        }
-        
+        animator.addAnimations(animation)
         animator.startAnimation()
+    }
+    
+    private let crossDissolve: ViewAnimation = { oldView, newView in {
+        oldView.alpha = 0
+        newView.alpha = 1
+        }
+    }
+    private let hideBoth: ViewAnimation = { oldView, newView in {
+        oldView.alpha = 0
+        newView.alpha = 0
+        }
+    }
+    private let showBoth: ViewAnimation = { oldView, newView in {
+        oldView.alpha = 1
+        newView.alpha = 1
+        }
     }
 }
 
