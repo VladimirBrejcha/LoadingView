@@ -15,14 +15,12 @@ public enum LoadingViewState: Equatable {
 
 @IBDesignable
 open class LoadingView: UIView {
-    // MARK: - Background view -
-    private let defaultCornerRadius: CGFloat = 12
+    // MARK: - Self -
     @IBInspectable public var cornerRadius: CGFloat {
         get { layer.cornerRadius }
         set { layer.cornerRadius = newValue }
     }
     
-    private let defaultBackgroundColor: UIColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 0.03)
     @IBInspectable public var color: UIColor? {
         get { backgroundColor }
         set { backgroundColor = newValue }
@@ -52,25 +50,40 @@ open class LoadingView: UIView {
         return view
     }()
     
-    private var initialAnimationSetup: (() -> Void)?
-    private var afterBackgroundAnimationSetup: (() -> Void)?
+    private typealias AnimationSetup = ((Animation, CALayer) -> Void)
+    private var initialAnimationSetup: AnimationSetup? = { animation, layer in
+        animation.add(on: layer)
+    }
+    private var afterBackgroundAnimationSetup: AnimationSetup?
     
-    public var loadingAnimation: Animation? {
+    public var loadingAnimation: Animation = PulsingCircleAnimation() {
         didSet {
-            loadingAnimation?.add(on: animationView.layer)
+            oldValue.removeFromSuperlayer()
+            loadingAnimation.add(on: animationView.layer)
         }
     }
     
     // MARK: - State: Info -
     private let infoLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 15)
+        label.font = UIFont.systemFont(ofSize: 16)
         label.textColor = .white
+        label.text = "An example information message"
         label.textAlignment = .center
         label.numberOfLines = 0
         label.alpha = 0
         return label
     }()
+    
+    @IBInspectable public var infoLabelFont: UIFont {
+        get { infoLabel.font }
+        set { infoLabel.font = newValue }
+    }
+    
+    @IBInspectable public var infoLabelColor: UIColor {
+        get { infoLabel.textColor }
+        set { infoLabel.textColor = newValue }
+    }
     
     // MARK: - State: Error -
     private let errorContainerView: UIView = {
@@ -83,7 +96,7 @@ open class LoadingView: UIView {
     // MARK: - Error label
     private let errorLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 15)
+        label.font = UIFont.systemFont(ofSize: 16)
         label.textColor = .white
         label.text = "An error occurred"
         label.textAlignment = .center
@@ -91,18 +104,34 @@ open class LoadingView: UIView {
         return label
     }()
     
+    @IBInspectable public var errorLabelFont: UIFont {
+        get { errorLabel.font }
+        set { errorLabel.font = newValue }
+    }
+    
+    @IBInspectable public var errorLabelColor: UIColor {
+        get { errorLabel.textColor }
+        set { errorLabel.textColor = newValue }
+    }
+    
     // MARK: - Repeat button
     private let repeatButton: Button = {
         let button = Button()
+        button.setTitle("repeat", for: .normal)
         button.addTarget(self, action: #selector(repeatTouchUp(_:)), for: .touchUpInside)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 16)
         button.titleEdgeInsets = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
         return button
     }()
-    
-    private let defaultButtonTitle: String = "repeat"
+
     @IBInspectable public var buttonTitle: String? {
         get { repeatButton.titleLabel?.text }
         set { repeatButton.setTitle(newValue, for: .normal) }
+    }
+    
+    @IBInspectable public var buttonTitleFont: UIFont? {
+        get { repeatButton.titleLabel?.font }
+        set { repeatButton.titleLabel?.font = newValue }
     }
     
     @IBInspectable public var buttonTitleColor: UIColor? {
@@ -134,6 +163,10 @@ open class LoadingView: UIView {
     }
     
     private func sharedInit() {
+        layer.cornerRadius = 12
+        backgroundColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 0.03)
+        alpha = 0
+        
         addSubview(infoLabel)
         addSubview(animationView)
         addSubview(errorContainerView)
@@ -172,18 +205,6 @@ open class LoadingView: UIView {
         errorLabel.leadingAnchor.constraint(equalTo: errorContainerView.leadingAnchor).isActive = true
         errorLabel.trailingAnchor.constraint(equalTo: errorContainerView.trailingAnchor).isActive = true
         
-        repeatButton.setTitle(defaultButtonTitle, for: .normal)
-        layer.cornerRadius = defaultCornerRadius
-        backgroundColor = defaultBackgroundColor
-        alpha = 0
-        
-        initialAnimationSetup = { [weak self] in
-            guard let self = self else { return }
-            if self.loadingAnimation == nil {
-                self.loadingAnimation = PulsingCircleAnimation()
-            }
-        }
-        
         NotificationCenter.default.addObserver(self, selector: #selector(willEnterForeground),
                                                name: UIApplication.willEnterForegroundNotification, object: nil)
     }
@@ -193,10 +214,9 @@ open class LoadingView: UIView {
     }
     
     @objc private func willEnterForeground() {
-        afterBackgroundAnimationSetup = { [weak self] in
-            guard let self = self else { return }
-            self.loadingAnimation?.removeFromSuperlayer()
-            self.loadingAnimation?.add(on: self.animationView.layer)
+        afterBackgroundAnimationSetup = { animation, layer in
+            animation.removeFromSuperlayer()
+            animation.add(on: layer)
         }
     }
     
@@ -204,15 +224,13 @@ open class LoadingView: UIView {
         super.draw(rect)
         
         if initialAnimationSetup != nil {
-            initialAnimationSetup?()
+            initialAnimationSetup?(loadingAnimation, animationView.layer)
             initialAnimationSetup = nil
-            return
+        } else {
+            afterBackgroundAnimationSetup?(loadingAnimation, animationView.layer)
+            afterBackgroundAnimationSetup = nil
         }
-        
-        afterBackgroundAnimationSetup?()
-        afterBackgroundAnimationSetup = nil
     }
-
     
     @objc private func repeatTouchUp(_ sender: Button) {
         repeatTouchUpHandler?(sender)
