@@ -102,11 +102,11 @@ open class LoadingView: UIView {
     // MARK: - State
     public var animateStateChanges: Bool = true
     private let initialState: LoadingViewState = .hidden
-    public var state: LoadingViewState = .hidden {
+    public var state: LoadingViewState! {
         didSet {
             if oldValue == state { return }
             
-            log("state changed from \(oldValue) to \(state)")
+            log("state changed from \(String(describing: oldValue)) to \(String(describing: state))")
             
             let animation = makeAnimation(from: oldValue, to: state)
             animateStateChanges
