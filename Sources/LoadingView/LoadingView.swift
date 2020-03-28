@@ -237,11 +237,10 @@ open class LoadingView: UIView {
     private func makeAnimation(from oldState: LoadingViewState, to newState: LoadingViewState) -> AnimatorAnimation {
         let oldView = makeView(for: oldState)
         let newView = makeView(for: newState)
-        
-        if oldState == .hidden {
-            return showBoth(oldView, newView)
-        } else if newState == .hidden {
+        if newState == .hidden {
             return hideBoth(oldView, newView)
+        } else if oldState == .hidden {
+            return showBoth(oldView, newView)
         } else {
             return crossDissolve(oldView, newView)
         }
