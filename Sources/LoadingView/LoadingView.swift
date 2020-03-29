@@ -6,19 +6,21 @@
 
 import UIKit
 
+/// Declares `state` of a `LoadingView`.
 public enum LoadingViewState: Equatable {
+    /// View is fully hidden.
     case hidden
+    /// View is showing loading animation.
     case loading
+    /// View is showing information with the given `message`.
     case info (message: String)
+    /// View is showing error with the given messsage and repeat button.
     case error (message: String)
 }
 
 @IBDesignable
 open class LoadingView: UIView {
     // MARK: - Self -
-    /**
-     Set `loadingView` cornerRadius
-    */
     @IBInspectable public var cornerRadius: CGFloat {
         get { layer.cornerRadius }
         set { layer.cornerRadius = newValue }
@@ -30,7 +32,14 @@ open class LoadingView: UIView {
     }
     
     // MARK: - States -
+    /// Declares if `self.state` should be changed with animation;
+    /// Default is `true`.
     public var animateStateChanges: Bool = true
+    
+    /// Returns `self` state;
+    /// Sets `self` state and updates UI;
+    /// If `animateStateChanges` set to `true` then cross dissolve animation will be used for UI update;
+    /// Default is `.hidden`.
     public var state: LoadingViewState = .hidden {
         didSet {
             if oldValue == state { return }
@@ -55,15 +64,15 @@ open class LoadingView: UIView {
     
     private typealias OnDraw = () -> Void
     private var onDraw: OnDraw?
+    private func append(to oldDraw: OnDraw?, _ draw: @escaping OnDraw) -> OnDraw { {
+        oldDraw?()
+        draw()
+    } }
     
-    private func append(to oldDraw: OnDraw?, _ draw: @escaping OnDraw) -> OnDraw
-    {
-        {
-            oldDraw?()
-            draw()
-        }
-    }
-    
+    /// Returns animation used for `.loading` state;
+    /// Sets animation used for `.loading` state (removing old animation);
+    /// Setting this value will call `setNeedsDisplay` on `self`;
+    /// Default is `PulsingCircleAnimation`.
     public var loadingAnimation: Animation = PulsingCircleAnimation() {
         didSet {
             onDraw = append(to: onDraw, { [weak self] in
@@ -161,6 +170,7 @@ open class LoadingView: UIView {
         set { repeatButton.backgroundColor = newValue }
     }
     
+    /// Called on every `repeatButton` touch up inside.
     public var repeatTouchUpHandler: ((UIButton) -> Void)?
     
     // MARK: - LifeCycle -
