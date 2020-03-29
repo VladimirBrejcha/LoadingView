@@ -7,8 +7,8 @@
 import UIKit
 
 public protocol Animation {
-    /// Adds `self` on the given `CALayer`
+    /// Adds `self` on the given `CALayer`.
     func add(on layer: CALayer)
-    /// Removes `self` from the superlayer
+    /// Removes `self` from the superlayer.
     func removeFromSuperlayer()
 }

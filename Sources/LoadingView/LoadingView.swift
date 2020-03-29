@@ -16,6 +16,9 @@ public enum LoadingViewState: Equatable {
 @IBDesignable
 open class LoadingView: UIView {
     // MARK: - Self -
+    /**
+     Set `loadingView` cornerRadius
+    */
     @IBInspectable public var cornerRadius: CGFloat {
         get { layer.cornerRadius }
         set { layer.cornerRadius = newValue }
