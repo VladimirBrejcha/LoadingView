@@ -67,6 +67,7 @@ open class LoadingView: UIView {
                 guard let self = self else { return }
                 oldValue.removeFromSuperlayer()
                 self.loadingAnimation.add(on: self.animationView.layer)
+                self.setNeedsDisplay()
             })
         }
     }
