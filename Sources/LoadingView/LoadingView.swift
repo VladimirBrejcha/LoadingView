@@ -50,16 +50,24 @@ open class LoadingView: UIView {
         return view
     }()
     
-    private typealias AnimationSetup = ((Animation, CALayer) -> Void)
-    private var initialAnimationSetup: AnimationSetup? = { animation, layer in
-        animation.add(on: layer)
+    private typealias OnDraw = () -> Void
+    private var onDraw: OnDraw?
+    
+    private func append(to oldDraw: OnDraw?, _ draw: @escaping OnDraw) -> OnDraw
+    {
+        {
+            oldDraw?()
+            draw()
+        }
     }
-    private var afterBackgroundAnimationSetup: AnimationSetup?
     
     public var loadingAnimation: Animation = PulsingCircleAnimation() {
         didSet {
-            oldValue.removeFromSuperlayer()
-            loadingAnimation.add(on: animationView.layer)
+            onDraw = append(to: onDraw, { [weak self] in
+                guard let self = self else { return }
+                oldValue.removeFromSuperlayer()
+                self.loadingAnimation.add(on: self.animationView.layer)
+            })
         }
     }
     
@@ -75,7 +83,7 @@ open class LoadingView: UIView {
         return label
     }()
     
-    @IBInspectable public var infoLabelFont: UIFont {
+    public var infoLabelFont: UIFont {
         get { infoLabel.font }
         set { infoLabel.font = newValue }
     }
@@ -104,7 +112,7 @@ open class LoadingView: UIView {
         return label
     }()
     
-    @IBInspectable public var errorLabelFont: UIFont {
+    public var errorLabelFont: UIFont {
         get { errorLabel.font }
         set { errorLabel.font = newValue }
     }
@@ -206,6 +214,11 @@ open class LoadingView: UIView {
         errorLabel.leadingAnchor.constraint(equalTo: errorContainerView.leadingAnchor).isActive = true
         errorLabel.trailingAnchor.constraint(equalTo: errorContainerView.trailingAnchor).isActive = true
         
+        onDraw = { [weak self] in
+            guard let self = self else { return }
+            self.loadingAnimation.add(on: self.animationView.layer)
+        }
+        
         NotificationCenter.default.addObserver(self, selector: #selector(willEnterForeground),
                                                name: UIApplication.willEnterForegroundNotification, object: nil)
     }
@@ -215,22 +228,18 @@ open class LoadingView: UIView {
     }
     
     @objc private func willEnterForeground() {
-        afterBackgroundAnimationSetup = { animation, layer in
-            animation.removeFromSuperlayer()
-            animation.add(on: layer)
+        onDraw = append(to: onDraw) { [weak self] in
+            guard let self = self else { return }
+            self.loadingAnimation.removeFromSuperlayer()
+            self.loadingAnimation.add(on: self.animationView.layer)
         }
     }
     
     public override func draw(_ rect: CGRect) {
         super.draw(rect)
         
-        if initialAnimationSetup != nil {
-            initialAnimationSetup?(loadingAnimation, animationView.layer)
-            initialAnimationSetup = nil
-        } else {
-            afterBackgroundAnimationSetup?(loadingAnimation, animationView.layer)
-            afterBackgroundAnimationSetup = nil
-        }
+        onDraw?()
+        onDraw = nil
     }
     
     @objc private func repeatTouchUp(_ sender: Button) {
