@@ -32,7 +32,6 @@ open class LoadingView: UIView {
     }
     
     // MARK: - States -
-    
     /// Logs every `state` change
     /// Default is `false`
     public var logStateChanges: Bool = false
@@ -311,11 +310,13 @@ open class LoadingView: UIView {
         newView.alpha = 1
         }
     }
+    
     private let hideBoth: ViewAnimation = { oldView, newView in {
         oldView.alpha = 0
         newView.alpha = 0
         }
     }
+    
     private let showBoth: ViewAnimation = { oldView, newView in {
         oldView.alpha = 1
         newView.alpha = 1
