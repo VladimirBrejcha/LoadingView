@@ -32,7 +32,12 @@ open class LoadingView: UIView {
     }
     
     // MARK: - States -
-    /// Declares if `self.state` should be changed with animation;
+    
+    /// Logs every `state` change
+    /// Default is `false`
+    public var logStateChanges: Bool = false
+    
+    /// Declares if `state` should be changed with animation;
     /// Default is `true`.
     public var animateStateChanges: Bool = true
     
@@ -44,7 +49,9 @@ open class LoadingView: UIView {
         didSet {
             if oldValue == state { return }
             
-            log("state changed from \(String(describing: oldValue)) to \(String(describing: state))")
+            if logStateChanges {
+                log("state changed from \(String(describing: oldValue)) to \(String(describing: state))")
+            }
             
             let animation = makeAnimation(from: oldValue, to: state)
             animateStateChanges
@@ -260,7 +267,6 @@ open class LoadingView: UIView {
         repeatTouchUpHandler?(sender)
     }
     
-    // MARK: - Private -
     private typealias AnimatorAnimation = () -> Void
     private typealias ViewAnimation = (UIView, UIView) -> AnimatorAnimation
     
