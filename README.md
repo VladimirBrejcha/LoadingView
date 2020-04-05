@@ -2,6 +2,8 @@
 
 LoadingView is an highly customizable and easy to use UI element for showing loading status written in Swift.
 
+![Preview](https://github.com/VladimirBrejcha/LoadingViewExample/blob/master/LoadingViewExample/preview.gif)
+
 ## Features
 
 - [x] Show animated loading
@@ -26,7 +28,8 @@ Use Xcode’s new Swift Packages option, which is located within the File menu.
 
 ## Usage example
 
-[ExampleApp]()
+[ExampleApp](https://github.com/VladimirBrejcha/LoadingViewExample)
+
 ```Swift
 import LoadingView
 
