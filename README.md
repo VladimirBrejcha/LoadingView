@@ -20,6 +20,7 @@ LoadingView is an highly customizable and easy to use UI element for showing loa
 - Swift 5.1+
 
 ## Installation
+
 ### Swift Package Manager
 
 The [Swift Package Manager](https://swift.org/package-manager/) is a tool for automating the distribution of Swift code and is integrated into the `swift` compiler.
@@ -47,6 +48,17 @@ class ViewController: UIViewController {
 }
 ```
 
+## States
+
+#### hidden
+View is fully hidden
+#### loading
+View is showing loading animation
+#### info
+View is showing information with the given message
+#### error
+View is showing error with the given messsage and repeat button
+
 ## Advanced
 
 ### Use your own animations instead of default PulsingCircleAnimation
@@ -62,6 +74,10 @@ loadingView.loadingAnimation = MyAnimation() // must conform to Animation protoc
 ```Swift
 loadingView.logStateChanges = true // enable logging if needed
 ```
+
+## Credits
+
+Example photo by Jason Leung on Unsplash
 
 ## License
 
