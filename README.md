@@ -15,7 +15,7 @@ LoadingView is an highly customizable and easy to use UI element for showing loa
 
 ## Requirements
 
-- iOS 11.0+
+- iOS 10.0+
 - Xcode 11+
 - Swift 5.1+
 

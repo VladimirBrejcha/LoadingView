@@ -54,10 +54,12 @@ open class LoadingView: UIView {
     
     private typealias OnDraw = () -> Void
     private var onDraw: OnDraw?
-    private func append(to oldDraw: OnDraw?, _ draw: @escaping OnDraw) -> OnDraw { {
-        oldDraw?()
-        draw()
-    } }
+    private func addToOnDraw(_ draw: @escaping OnDraw) {
+        self.onDraw = {
+            self.onDraw?()
+            draw()
+        }
+    }
     
     /// Returns animation used for `.loading` state;
     /// Sets animation used for `.loading` state (removing old animation);
@@ -65,11 +67,11 @@ open class LoadingView: UIView {
     /// Default is `PulsingCircleAnimation`.
     public var loadingAnimation: Animation = PulsingCircleAnimation() {
         didSet {
-            onDraw = append(to: onDraw, { [weak self] in
+            addToOnDraw { [weak self] in
                 guard let self = self else { return }
                 oldValue.removeFromSuperlayer()
                 self.loadingAnimation.add(on: self.animationView.layer)
-            })
+            }
             setNeedsDisplay()
         }
     }
@@ -163,6 +165,8 @@ open class LoadingView: UIView {
     /// Called on every `repeatButton` touch up inside.
     public var repeatTouchUpHandler: ((UIButton) -> Void)?
     
+    private var willEnterForegroundObserver: NSObjectProtocol?
+    
     // MARK: - LifeCycle -
     override public init(frame: CGRect) {
         super.init(frame: frame)
@@ -223,19 +227,22 @@ open class LoadingView: UIView {
             self.loadingAnimation.add(on: self.animationView.layer)
         }
         
-        NotificationCenter.default.addObserver(self, selector: #selector(willEnterForeground),
-                                               name: UIApplication.willEnterForegroundNotification, object: nil)
+        willEnterForegroundObserver = NotificationCenter.default.addObserver(
+            forName: UIApplication.willEnterForegroundNotification,
+            object: self,
+            queue: .main
+        ) { _ in
+            self.addToOnDraw { [weak self] in
+                guard let self = self else { return }
+                self.loadingAnimation.removeFromSuperlayer()
+                self.loadingAnimation.add(on: self.animationView.layer)
+            }
+        }
     }
     
     deinit {
-        NotificationCenter.default.removeObserver(self, name: UIApplication.willEnterForegroundNotification, object: nil)
-    }
-    
-    @objc private func willEnterForeground() {
-        onDraw = append(to: onDraw) { [weak self] in
-            guard let self = self else { return }
-            self.loadingAnimation.removeFromSuperlayer()
-            self.loadingAnimation.add(on: self.animationView.layer)
+        if let observer = willEnterForegroundObserver {
+            NotificationCenter.default.removeObserver(observer)
         }
     }
     
