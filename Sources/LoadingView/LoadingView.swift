@@ -54,10 +54,11 @@ open class LoadingView: UIView {
     
     private typealias OnDraw = () -> Void
     private var onDraw: OnDraw?
-    private func addToOnDraw(_ draw: @escaping OnDraw) {
+    private func addToOnDraw(_ newOnDraw: @escaping OnDraw) {
+        let oldOnDraw = self.onDraw
         self.onDraw = {
-            self.onDraw?()
-            draw()
+            oldOnDraw?()
+            newOnDraw()
         }
     }
     
