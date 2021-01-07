@@ -226,10 +226,10 @@ open class LoadingView: UIView {
             guard let self = self else { return }
             self.loadingAnimation.add(on: self.animationView.layer)
         }
-        
+
         willEnterForegroundObserver = NotificationCenter.default.addObserver(
             forName: UIApplication.willEnterForegroundNotification,
-            object: self,
+            object: nil,
             queue: .main
         ) { _ in
             self.addToOnDraw { [weak self] in
