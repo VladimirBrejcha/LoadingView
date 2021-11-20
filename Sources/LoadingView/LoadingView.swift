@@ -253,6 +253,19 @@ open class LoadingView: UIView {
         onDraw?()
         onDraw = nil
     }
+
+    /*
+     * Restore animation in case it was removed from the layer
+     * For example on cell reuse
+     */
+    public func restoreAnimation() {
+        addToOnDraw { [weak self] in
+            guard let self = self else { return }
+            self.loadingAnimation.removeFromSuperlayer()
+            self.loadingAnimation.add(on: self.animationView.layer)
+        }
+        setNeedsDisplay()
+    }
     
     @objc private func repeatTouchUp(_ sender: Button) {
         repeatTouchUpHandler?(sender)
