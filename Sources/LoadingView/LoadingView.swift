@@ -129,7 +129,7 @@ open class LoadingView: UIView {
     }
     
     // MARK: - Repeat button
-    private let repeatButton: Button = {
+    private lazy var repeatButton: Button = {
         let button = Button()
         button.setTitle("repeat", for: .normal)
         button.addTarget(self, action: #selector(repeatTouchUp(_:)), for: .touchUpInside)
